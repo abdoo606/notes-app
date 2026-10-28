@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes</title>
+  <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; color: #1f2937; }
+    form.add { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+    input[type=text] { flex: 1; padding: .6rem; border: 1px solid #d1d5db; border-radius: .5rem; }
+    button { padding: .6rem 1rem; border: 0; border-radius: .5rem; background: #111827; color: #fff; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid #e5e7eb; }
+    li.done span.title { text-decoration: line-through; color: #9ca3af; }
+    .count { color: #6b7280; font-size: .875rem; }
+  </style>
+</head>
+<body>
+  <h1>Notes</h1>
+  <p class="count">{{ remaining }} remaining</p>
+
+  <form class="add" hx-post="/notes" hx-target="body" hx-swap="innerHTML">
+    <input type="text" name="title" placeholder="What needs doing?" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <ul id="notes">
+    {% for note in notes %}
+    <li class="{{ 'done' if note.done else '' }}">
+      <button hx-post="/notes/{{ note.id }}/toggle" hx-target="body" hx-swap="innerHTML">
+        {{ '✓' if note.done else '○' }}
+      </button>
+      <span class="title">{{ note.title }}</span>
+      <button hx-delete="/notes/{{ note.id }}" hx-target="body" hx-swap="innerHTML">✕</button>
+    </li>
+    {% else %}
+    <li>Nothing yet - add your first note.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
